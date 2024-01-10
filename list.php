@@ -11,7 +11,7 @@ $handler->push(\GuzzleHttp\Middleware::retry($throttle->decider(), $throttle->de
 $client = Discogs\ClientFactory::factory([
 	'handler' => $handler,
 	'headers' => [
-		'User-Agent' => 'malte70-discogs/0.1 +https://malte70.de',
+		'User-Agent' => 'malte70-discogs/0.1 +https://github.com/malte70/discogs',
 		'Authorization' => "Discogs token=".DISCOGS_PERSONAL_ACCESS_TOKEN,
 	],
 ]);
@@ -20,24 +20,13 @@ $client = Discogs\ClientFactory::factory([
 header("Content-Type: text/plain; charset=UTF-8");
 
 
-//$folders = $client->getCollectionFolders([
-//    'username' => 'malte70'
-//]);
-//print_r($folders);
-
 $items = $client->getCollectionItemsByFolder([
-    'username' => 'malte70',
+    'username' => DISCOGS_USER_NAME,
 	'folder_id' => 0,
 	'per_page' => 500,
 ]);
 
-/*
-print "\$items[releases](".count($items["releases"])."):\n";
-print_r($items["releases"]);
-*/
 
-
-//print "Listing " . count($items["releases"]) . " releases:\n\n";
 $releases = Array();
 foreach ($items["releases"] as $item) {
 	if ($item["basic_information"]["formats"][0]["name"] != "Vinyl") {

@@ -11,14 +11,14 @@ $handler->push(\GuzzleHttp\Middleware::retry($throttle->decider(), $throttle->de
 $client = Discogs\ClientFactory::factory([
 	'handler' => $handler,
 	'headers' => [
-		'User-Agent' => 'malte70-discogs/0.1 +https://malte70.de',
+		'User-Agent' => 'malte70-discogs/0.1 +https://github.com/malte70/discogs',
 		'Authorization' => "Discogs token=".DISCOGS_PERSONAL_ACCESS_TOKEN,
 	],
 ]);
 
 
 $items = $client->getCollectionItemsByFolder([
-    'username' => 'malte70',
+    'username' => DISCOGS_USER_NAME,
 	'folder_id' => 0,
 	'per_page' => 500,
 ]);
@@ -34,25 +34,8 @@ foreach ($items["releases"] as $item) {
 
 
 $item_no = rand(0, count($releases)-1);
-
-/*print "Listing " . count($releases) . " Vinyl releases:\n\n";
-
-foreach ($releases as $k => $item) {
-	$artists = "";
-	foreach ($item["basic_information"]["artists"] as $a) {
-		$artists .= $a["name"] . ", ";
-	}
-	$artists = substr($artists, 0, -2);
-
-	print $artists . " - " . $item["basic_information"]["title"];
-	//print " (" . $item["basic_information"]["year"] . ")";
-	//print " (" . $item["basic_information"]["year"] . ", " . $item["basic_information"]["formats"][0]["name"] . ")";
-	print " (" . $item["basic_information"]["year"] . ")";
-	print "(" . $item["basic_information"]["formats"][0]["name"] . ", " . implode(", ", $item["basic_information"]["formats"][0]["descriptions"]) . ")";
-	print "\n";
-}*/
-
 $item = $releases[$item_no];
+
 
 $artists = "";
 foreach ($item["basic_information"]["artists"] as $a) {
@@ -100,4 +83,3 @@ $recordDetails = $item["basic_information"]["year"] . "; " . implode(", ", $item
 		</main>
 	</body>
 </html>
-
