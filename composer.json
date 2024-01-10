@@ -1,0 +1,5 @@
+{
+    "require": {
+        "calliostro/php-discogs-api": "^2.0"
+    }
+}
