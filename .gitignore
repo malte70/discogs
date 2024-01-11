@@ -5,6 +5,9 @@
 # Config file contains private access tokens!
 config.inc.php
 
+# Cache files
+*.cache
+
 # Composer.gitignore
 composer.phar
 /vendor/

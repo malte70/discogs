@@ -3,25 +3,33 @@ require("vendor/autoload.php");
 require("config.inc.php");
 
 
-$handler = \GuzzleHttp\HandlerStack::create();
-$throttle = new Discogs\Subscriber\ThrottleSubscriber();
-$handler->push(\GuzzleHttp\Middleware::retry($throttle->decider(), $throttle->delay()));
+if (!file_exists(COLLECTION_ITEMS_CACHE_FILE) || filemtime(COLLECTION_ITEMS_CACHE_FILE) <= strtotime(CACHE_TIME)) {
+	$handler = \GuzzleHttp\HandlerStack::create();
+	$throttle = new Discogs\Subscriber\ThrottleSubscriber();
+	$handler->push(\GuzzleHttp\Middleware::retry($throttle->decider(), $throttle->delay()));
 
 
-$client = Discogs\ClientFactory::factory([
-	'handler' => $handler,
-	'headers' => [
-		'User-Agent' => 'malte70-discogs/0.1 +https://github.com/malte70/discogs',
-		'Authorization' => "Discogs token=".DISCOGS_PERSONAL_ACCESS_TOKEN,
-	],
-]);
+	$client = Discogs\ClientFactory::factory([
+		'handler' => $handler,
+		'headers' => [
+			'User-Agent' => USER_AGENT,
+			'Authorization' => "Discogs token=".DISCOGS_PERSONAL_ACCESS_TOKEN,
+		],
+	]);
 
 
-$items = $client->getCollectionItemsByFolder([
-    'username' => DISCOGS_USER_NAME,
-	'folder_id' => 0,
-	'per_page' => 500,
-]);
+	$items = $client->getCollectionItemsByFolder([
+		'username' => DISCOGS_USER_NAME,
+		'folder_id' => 0,
+		'per_page' => DISCOGS_PER_PAGE,
+	]);
+	
+	file_put_contents(COLLECTION_ITEMS_CACHE_FILE, serialize($items));
+
+} else {
+	$items = unserialize(file_get_contents(COLLECTION_ITEMS_CACHE_FILE));
+
+}
 
 
 $releases = Array();
@@ -34,6 +42,7 @@ foreach ($items["releases"] as $item) {
 
 
 $item_no = rand(0, count($releases)-1);
+$item_no = random_int(0, count($releases)-1);
 $item = $releases[$item_no];
 
 
@@ -44,7 +53,7 @@ foreach ($item["basic_information"]["artists"] as $a) {
 $artists = substr($artists, 0, -2);
 
 $recordInfo = $artists . " - " . $item["basic_information"]["title"];
-$recordDetails = $item["basic_information"]["year"] . "; " . implode(", ", $item["basic_information"]["formats"][0]["descriptions"]);
+$recordDetails = ($item["basic_information"]["year"]!=0 ? $item["basic_information"]["year"] : "<i>Unknown year</i>") . "; " . implode(", ", $item["basic_information"]["formats"][0]["descriptions"]);
 
 ?><!DOCTYPE html>
 <html lang="de">
