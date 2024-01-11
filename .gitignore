@@ -6,7 +6,8 @@
 config.inc.php
 
 # Cache files
-*.cache
+/cache/*.cache
+/cache/*.jpg
 
 # Composer.gitignore
 composer.phar
