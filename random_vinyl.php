@@ -1,13 +1,25 @@
 <?php
+// Composer
 require("vendor/autoload.php");
-require("config.inc.php");
+// Configuration
+require("config.inc.php") or die("<!DOCTYPE html>\n<meta charset=\"UTF-8\">\n<h1>No configuration file found!</h1>\n<p>Please copy <tt>config.inc-dist.php</tt> to <tt>config.inc.php</tt> and change it to your needs.</p>");
 
 
+/**
+ * Throttle API calls
+ *
+ * @see https://github.com/calliostro/php-discogs-api#throttling
+ */
 $handler = \GuzzleHttp\HandlerStack::create();
 $throttle = new Discogs\Subscriber\ThrottleSubscriber();
 $handler->push(\GuzzleHttp\Middleware::retry($throttle->decider(), $throttle->delay()));
 
 
+/**
+ * Initialize Discogs API Client
+ *
+ * NOTE: Always set a user agent!
+ */
 $client = Discogs\ClientFactory::factory([
 	'handler' => $handler,
 	'headers' => [
@@ -17,6 +29,9 @@ $client = Discogs\ClientFactory::factory([
 ]);
 
 
+/**
+ * Get collection items from Discogs API or cache file
+ */
 if (!file_exists(COLLECTION_ITEMS_CACHE_FILE) || filemtime(COLLECTION_ITEMS_CACHE_FILE) <= strtotime(CACHE_TIME)) {
 	$items = $client->getCollectionItemsByFolder([
 		'username' => DISCOGS_USER_NAME,
@@ -32,26 +47,38 @@ if (!file_exists(COLLECTION_ITEMS_CACHE_FILE) || filemtime(COLLECTION_ITEMS_CACH
 }
 
 
+/**
+ * Get releases from collection list and filter by format
+ */
 $releases = Array();
 foreach ($items["releases"] as $item) {
-	if ($item["basic_information"]["formats"][0]["name"] != "Vinyl") {
+	if ($item["basic_information"]["formats"][0]["name"] != DISCOGS_FORMAT_FILTER) {
 		continue;
 	}
 	array_push($releases, $item);
 }
 
 
+/**
+ * Get random collection item
+ */
 $item_no = rand(0, count($releases)-1);
 $item_no = random_int(0, count($releases)-1);
 $item = $releases[$item_no];
 
 
+/**
+ * Create comma separated artist list
+ */
 $artists = "";
 foreach ($item["basic_information"]["artists"] as $a) {
 	$artists .= $a["name"] . ", ";
 }
 $artists = substr($artists, 0, -2);
 
+/**
+ * Record details displayed on web page
+ */
 $recordInfo = $artists . " - " . $item["basic_information"]["title"];
 $recordDetails = ($item["basic_information"]["year"]!=0 ? $item["basic_information"]["year"] : "<i>Unknown year</i>") . "; " . implode(", ", $item["basic_information"]["formats"][0]["descriptions"]);
 
@@ -67,39 +94,15 @@ if (!file_exists($img_local_filename)) {
 
 
 ?><!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-		<title>Random Vinyl</title>
+		<title>Random <?=DISCOGS_FORMAT_FILTER?> from your collection</title>
 
-		<meta name="author" content="rolltreppe3">
-		<link rel="stylesheet" href="https://xyz.rolltreppe3.de/css/normalize.css">
-		<style>
-			*, *:before, *:after { box-sizing: border-box; }
-			body {
-				font: 20px sans-serif;
-				color: #333333;
-				background: #e8e8e8;
-			}
-			main {
-				text-align: center;
-			}
-			main img {
-				display: inline-block;
-				width: 12.5em;
-				margin: 3em 0 1em;
-			}
-			main h1 {
-				font-size: 1.5em;
-				font-weight: semi-bold;
-				/*margin: 3em 0 1em;*/
-				margin: 1em 0;
-			}
-			main p {
-			}
-		</style>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+		<link rel="stylesheet" href="style.css">
 		<link rel="icon" type="image/png" href="https://dev.malte70.de/tango-icons/img/itunes-512.png">
 	</head>
 	<body id="top">

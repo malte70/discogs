@@ -1,0 +1,31 @@
+@charset "UTF-8";
+
+*, *:before, *:after {
+	box-sizing: border-box;
+}
+
+body {
+	font: 20px sans-serif;
+	color: #333333;
+	background: #e8e8e8;
+}
+
+main {
+	text-align: center;
+}
+
+main img {
+	display: inline-block;
+	width: 12.5em;
+	margin: 3em 0 1em;
+}
+
+main h1 {
+	font-size: 1.5em;
+	font-weight: semi-bold;
+	/*margin: 3em 0 1em;*/
+	margin: 1em 0;
+}
+
+main p {
+}
