@@ -2,7 +2,7 @@
 // Composer
 require("vendor/autoload.php");
 // Configuration
-require("config.inc.php") or die("<!DOCTYPE html>\n<meta charset=\"UTF-8\">\n<h1>No configuration file found!</h1>\n<p>Please copy <tt>config.inc-dist.php</tt> to <tt>config.inc.php</tt> and change it to your needs.</p>");
+(require("config.inc.php")) or die("<!DOCTYPE html>\n<meta charset=\"UTF-8\">\n<h1>No configuration file found!</h1>\n<p>Please copy <tt>config.inc-dist.php</tt> to <tt>config.inc.php</tt> and change it to your needs.</p>");
 
 
 /**
