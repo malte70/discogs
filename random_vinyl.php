@@ -33,16 +33,28 @@ $client = Discogs\ClientFactory::factory([
  * Get collection items from Discogs API or cache file
  */
 if (!file_exists(COLLECTION_ITEMS_CACHE_FILE) || filemtime(COLLECTION_ITEMS_CACHE_FILE) <= strtotime(CACHE_TIME)) {
-	$items = $client->getCollectionItemsByFolder([
-		'username' => DISCOGS_USER_NAME,
-		'folder_id' => 0,
-		'per_page' => DISCOGS_PER_PAGE,
-	]);
+	$keep_going = True;
+	$releases = Array();
+	$page = 1;
+	while ($keep_going) {
+		$items = $client->getCollectionItemsByFolder([
+			'username' => DISCOGS_USER_NAME,
+			'folder_id' => 0,
+			'page' => $page,
+			'per_page' => DISCOGS_PER_PAGE,
+		]);
+		$releases = array_merge($releases, $items["releases"]);
+		if (count($items["releases"]) < 100) {
+			$keep_going = False;
+			break;
+		}
+		$page++;
+	}
 	
-	file_put_contents(COLLECTION_ITEMS_CACHE_FILE, serialize($items));
+	file_put_contents(COLLECTION_ITEMS_CACHE_FILE, serialize($releases));
 
 } else {
-	$items = unserialize(file_get_contents(COLLECTION_ITEMS_CACHE_FILE));
+	$releases = unserialize(file_get_contents(COLLECTION_ITEMS_CACHE_FILE));
 
 }
 
@@ -50,19 +62,21 @@ if (!file_exists(COLLECTION_ITEMS_CACHE_FILE) || filemtime(COLLECTION_ITEMS_CACH
 /**
  * Get releases from collection list and filter by format
  */
-$releases = Array();
-foreach ($items["releases"] as $item) {
+$releases_filtered = Array();
+foreach ($releases as $item) {
 	if ($item["basic_information"]["formats"][0]["name"] != DISCOGS_FORMAT_FILTER) {
 		continue;
 	}
-	array_push($releases, $item);
+	array_push($releases_filtered, $item);
 }
+$releases = $releases_filtered;
+unset($releases_filtered);
 
 
 /**
  * Get random collection item
  */
-$item_no = rand(0, count($releases)-1);
+//$item_no = rand(0, count($releases)-1);
 $item_no = random_int(0, count($releases)-1);
 $item = $releases[$item_no];
 
