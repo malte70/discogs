@@ -1,0 +1,61 @@
+@charset "UTF-8";
+/**
+ * Stylesheet for a simple directory listing, used
+ * on https://f.malte70.de and https://dev.malte70.de
+ * 
+ */
+
+@import url(normalize.css);
+
+
+*, *:before, *:after {
+	box-sizing: border-box;
+}
+
+body {
+	font: 20px "Source Serif Pro", serif;
+	color: #403B33;
+	background: #EDEBE6;
+}
+
+a:link, a:visited {
+	text-decoration: underline;
+	color: #403B33;
+}
+
+a:hover, a:active {
+	color: #A40114;
+}
+
+header {
+	text-align: center;
+}
+
+header h1 {
+	font: 1.8em "Source Serif Pro", serif;
+	font-weight: normal;
+}
+
+header h1 a:link, a:visited {
+	text-decoration: none;
+	/*color: #403B33;*/
+}
+
+main {
+	/*width: 750px;
+	max-width: 100%;
+	margin: 0 auto;*/
+	padding: .5em;
+}
+
+main ul {
+	list-style: none;
+}
+
+main ul li {
+	font: 1em "Source Code Pro", monospace;
+}
+
+main ul li span {
+	font-style: italic;
+}
